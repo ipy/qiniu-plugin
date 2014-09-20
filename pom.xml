@@ -33,4 +33,11 @@
     </pluginRepository>
   </pluginRepositories>
 
+  <dependencies>
+  	<dependency>
+  		<groupId>com.qiniu</groupId>
+  		<artifactId>sdk</artifactId>
+  		<version>6.0.0</version>
+  	</dependency>
+  </dependencies>
 </project>

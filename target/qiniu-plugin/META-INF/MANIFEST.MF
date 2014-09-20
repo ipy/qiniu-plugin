@@ -9,7 +9,7 @@ Group-Id: net.zouxin.lab
 Short-Name: qiniu-plugin
 Long-Name: qiniu-plugin
 Url: http://jenkins-ci.org/plugin/qiniu-plugin/
-Plugin-Version: 1.0-SNAPSHOT (private-09/15/2014 15:23-sin)
+Plugin-Version: 1.0-SNAPSHOT (private-09/20/2014 21:51-sin)
 Hudson-Version: 1.532.3
 Jenkins-Version: 1.532.3
 Plugin-Developers: 

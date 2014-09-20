@@ -3,10 +3,22 @@ Group-Id: net.zouxin.lab
 Short-Name: qiniu-plugin
 Long-Name: qiniu-plugin
 Url: http://jenkins-ci.org/plugin/qiniu-plugin/
-Plugin-Version: 1.0-SNAPSHOT (private-09/15/2014 15:22-sin)
+Plugin-Version: 1.0-SNAPSHOT (private-09/20/2014 21:50-sin)
 Hudson-Version: 1.532.3
 Jenkins-Version: 1.532.3
 Plugin-Developers: 
-Libraries: /home/sin/workspace/qiniu-plugin/target/classes
+Libraries: /home/sin/workspace/qiniu-plugin/target/classes,/home/sin/.
+ m2/repository/com/qiniu/sdk/6.0.0/sdk-6.0.0.jar,/home/sin/.m2/reposit
+ ory/commons-cli/commons-cli/1.2/commons-cli-1.2.jar,/home/sin/.m2/rep
+ ository/org/apache/httpcomponents/httpclient/4.2/httpclient-4.2.jar,/
+ home/sin/.m2/repository/org/apache/httpcomponents/httpmime/4.2/httpmi
+ me-4.2.jar,/home/sin/.m2/repository/org/apache/httpcomponents/httpcor
+ e-nio/4.2.1/httpcore-nio-4.2.1.jar,/home/sin/.m2/repository/org/apach
+ e/httpcomponents/httpcore-ab/4.2.1/httpcore-ab-4.2.1.jar,/home/sin/.m
+ 2/repository/org/apache/httpcomponents/httpcore/4.2.1/httpcore-4.2.1.
+ jar,/home/sin/.m2/repository/org/apache/httpcomponents/httpclient-cac
+ he/4.2/httpclient-cache-4.2.jar,/home/sin/.m2/repository/org/json/org
+ .json/chargebee-1.0/org.json-chargebee-1.0.jar,/home/sin/.m2/reposito
+ ry/org/apache/httpcomponents/fluent-hc/4.2/fluent-hc-4.2.jar
 Resource-Path: /home/sin/workspace/qiniu-plugin/src/main/webapp
 
