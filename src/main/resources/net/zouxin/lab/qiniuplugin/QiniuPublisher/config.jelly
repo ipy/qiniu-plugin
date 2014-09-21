@@ -17,12 +17,16 @@
       <f:entry title="要上传到的 bucket" field="test">
         <f:textbox name="qiniu.bucket" value="${e.bucket}" />
       </f:entry>
-      <f:entry title="构建失败则不上传">
-	    <f:checkbox name="qiniu.noUploadOnFailure" checked="${e.noUploadOnFailure}"/>
-      </f:entry>
       <f:entry title="重命名">
 	    <f:textbox name="qiniu.formatKey" value="${e.formatKey}"/>
       </f:entry>
+      <f:entry title="构建失败则不上传">
+	    <f:checkbox name="qiniu.noUploadOnFailure" checked="${e.noUploadOnFailure}"/>
+      </f:entry>
+      <f:entry title="如果已存在则不覆盖">
+        <f:checkbox name="qiniu.noUploadOnExists" checked="${e.noUploadOnExists}"/>
+      </f:entry>
+
 
       <f:entry title="">
         <div align="right">

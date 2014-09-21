@@ -1,8 +1,11 @@
 package net.zouxin.lab.qiniuplugin;
 
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
+import hudson.Util;
 import hudson.model.BuildListener;
+import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
@@ -13,17 +16,27 @@ import hudson.tasks.Recorder;
 import hudson.util.CopyOnWriteList;
 import hudson.util.FormValidation;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+
+import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.io.IoApi;
+import com.qiniu.api.io.PutExtra;
+import com.qiniu.api.io.PutRet;
+import com.qiniu.api.rs.PutPolicy;
 
 /**
  * Sample {@link Builder}.
@@ -52,21 +65,86 @@ public class QiniuPublisher extends Recorder {
 
 	@Override
 	public boolean perform(AbstractBuild build, Launcher launcher,
-			BuildListener listener) {
+			BuildListener listener) throws IOException, InterruptedException {
 		// This is where you 'build' the project.
 		// Since this is a dummy, we just say 'hello world' and call that a
 		// build.
 
 		// This also shows how you can consult the global configuration of the
 		// builder
-		listener.getLogger().println(this.entries.size());
-		for (QiniuEntry entry : this.entries) {
-			listener.getLogger().println(entry.bucket);
-			listener.getLogger().println(entry.formatKey);
-			listener.getLogger().println(entry.profileName);
-			listener.getLogger().println(entry.source);
-		}
+		FilePath ws = build.getWorkspace();
+		String wsPath = ws.getRemote() + File.separator;
+		PrintStream logger = listener.getLogger();
+		Map<String, String> envVars = build.getEnvironment(listener);
+		final boolean buildFailed = build.getResult() == Result.FAILURE;
 
+		logger.println("开始上传到七牛...");
+		for (QiniuEntry entry : this.entries) {
+
+			if (entry.noUploadOnFailure && buildFailed) {
+				logger.println("构建失败,跳过上传");
+				continue;
+			}
+
+			QiniuProfile profile = this.getDescriptor().getProfileByName(
+					entry.profileName);
+			if (profile == null) {
+				logger.println("找不到配置项,跳过");
+				continue;
+			}
+
+			Mac mac = new Mac(profile.getAccessKey(), profile.getSecretKey());
+			// 请确保该bucket已经存在
+			PutPolicy putPolicyGlobal = new PutPolicy(entry.bucket);
+			String uptoken;
+
+			PutExtra extra = new PutExtra();
+
+			String expanded = Util.replaceMacro(entry.source, envVars);
+			FilePath[] paths = ws.list(expanded);
+			for (FilePath path : paths) {
+				String keyPath = path.getRemote().replace(wsPath, "");
+				// String key = (entry.formatKey.equals("") || entry.formatKey
+				// == null) ? new File(
+				// keyPath).toURI().toString() : new File(
+				// Util.replaceMacro(
+				// entry.formatKey.replace("${PATH}", keyPath),
+				// envVars)).toURI().toString();
+				String key = keyPath;
+				PutPolicy putPolicy;
+				if (entry.noUploadOnExists) {
+					putPolicy = putPolicyGlobal;
+				} else {
+					putPolicy = new PutPolicy(entry.bucket);
+					putPolicy.scope = entry.bucket + ":" + key;
+				}
+				try {
+					uptoken = putPolicy.token(mac);
+					PutRet ret = IoApi.putFile(uptoken, key,
+							new File(path.getRemote()), extra);
+					JSONObject retJsonObject = (JSONObject) JSONSerializer
+							.toJSON(ret.toString());
+					if (ret.ok()) {
+						logger.println("上传 " + keyPath + " 到 " + entry.bucket
+								+ " 成功: " + retJsonObject.getString("key"));
+					} else {
+						logger.print("上传 " + keyPath + " 到 " + entry.bucket
+								+ " 失败: ");
+						String error = retJsonObject.getString("error");
+						if (error != null) {
+							logger.print(error);
+						}
+						logger.println();
+					}
+					logger.println("           " + ret);
+				} catch (Exception e) {
+					e.printStackTrace();
+					build.setResult(Result.UNSTABLE);
+				}
+			}
+
+		}
+		logger.println("上传到七牛成功...");
 		return true;
 	}
 
@@ -103,6 +181,17 @@ public class QiniuPublisher extends Recorder {
 
 		public List<QiniuProfile> getProfiles() {
 			return Arrays.asList(profiles.toArray(new QiniuProfile[0]));
+		}
+
+		public QiniuProfile getProfileByName(String profileName) {
+			List<QiniuProfile> profiles = this.getProfiles();
+			for (QiniuProfile profile : profiles) {
+				System.console().printf(profile.getName() + "\n");
+				if (profileName.equals(profile.getName())) {
+					return profile;
+				}
+			}
+			return null;
 		}
 
 		/**
