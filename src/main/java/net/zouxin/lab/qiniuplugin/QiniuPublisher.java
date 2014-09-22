@@ -104,13 +104,7 @@ public class QiniuPublisher extends Recorder {
 			FilePath[] paths = ws.list(expanded);
 			for (FilePath path : paths) {
 				String keyPath = path.getRemote().replace(wsPath, "");
-				// String key = (entry.formatKey.equals("") || entry.formatKey
-				// == null) ? new File(
-				// keyPath).toURI().toString() : new File(
-				// Util.replaceMacro(
-				// entry.formatKey.replace("${PATH}", keyPath),
-				// envVars)).toURI().toString();
-				String key = keyPath;
+				String key = keyPath.replace(File.separator, "/");
 				PutPolicy putPolicy;
 				if (entry.noUploadOnExists) {
 					putPolicy = putPolicyGlobal;

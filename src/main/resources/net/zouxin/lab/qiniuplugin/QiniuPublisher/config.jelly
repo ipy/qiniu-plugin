@@ -2,7 +2,7 @@
   <f:entry>
   <f:repeatable var="e" items="${instance.entries}">
     <table width="100%">
-      <f:entry title="七牛配置项">
+      <f:entry title="七牛配置项" field="qiniuprofile">
        <select class="setting-input" name="qiniu.profileName" description="选择预先设置好的七牛设置项">
          <j:forEach var="s" items="${descriptor.profiles}">
            <f:option selected="${s.name==e.profileName}" value="${s.name}">${s.name}</f:option>
@@ -10,16 +10,18 @@
        </select>
       </f:entry>
       
-      <f:entry title="文件路径">
+      <f:entry title="文件路径" field="qiniusource">
         <f:textbox name="qiniu.source" value="${e.source}" />
       </f:entry>
       
-      <f:entry title="要上传到的 bucket" field="test">
+      <f:entry title="要上传到的 bucket" field="qiniubucket">
         <f:textbox name="qiniu.bucket" value="${e.bucket}" />
       </f:entry>
+      <!--
       <f:entry title="重命名">
 	    <f:textbox name="qiniu.formatKey" value="${e.formatKey}"/>
       </f:entry>
+      -->
       <f:entry title="构建失败则不上传">
 	    <f:checkbox name="qiniu.noUploadOnFailure" checked="${e.noUploadOnFailure}"/>
       </f:entry>
